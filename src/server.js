@@ -1,8 +1,34 @@
-import mongoose from 'mongoose';
+import { MongoClient } from "mongodb";
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import productsRouter from "./Routes/products.route.js";
 
-export function db() {
-  mongoose.set('strictQuery', false);
-  mongoose
-    .connect('mongodb://127.0.0.1:27017/express-zadanie')
-    .then(() => console.log('Connected with MongoDB'));
-}
+dotenv.config();
+const dbPath = process.env.MONGO_URI;
+
+const port = process.env.PORT || 3001;
+const app = express();
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(productsRouter);
+
+const client = new MongoClient(dbPath, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+let db;
+
+app.listen(port, async () => {
+  await client.connect();
+  db = client.db("products-list");
+
+  console.log(`Server is running on port: ${port}`);
+});
+
+export const getDb = () => {
+  return db;
+};
