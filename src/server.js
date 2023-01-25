@@ -23,10 +23,14 @@ const client = new MongoClient(dbPath, {
 let db;
 
 app.listen(port, async () => {
-  await client.connect();
-  db = client.db("products-list");
+  try {
+    await client.connect();
+    db = client.db("products-list");
 
-  console.log(`Server is running on port: ${port}`);
+    console.log(`Server is running on port: ${port}`);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 export const getDb = () => {
